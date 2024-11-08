@@ -1,14 +1,18 @@
 import { NextRequest } from "next/server";
 import {
   CopilotRuntime,
-  OpenAIAdapter,
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
-import OpenAI from "openai";
 
-const openai = new OpenAI();
-const serviceAdapter = new OpenAIAdapter({ openai });
+// Define the NoOpServiceAdapter class to act as a placeholder
+class NoOpServiceAdapter {
+  async process(request: any): Promise<any> {
+    // Returns an empty response, satisfying TypeScript without actual processing
+    return { threadId: "noop", messages: [] };
+  }
+}
 
+// Instantiate the runtime with remote actions
 const runtime = new CopilotRuntime({
   remoteActions: [
     {
@@ -17,10 +21,13 @@ const runtime = new CopilotRuntime({
   ],
 });
 
+// Use NoOpServiceAdapter as the service adapter
+const serviceAdapter = new NoOpServiceAdapter();
+
 export const POST = async (req: NextRequest) => {
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
     runtime,
-    serviceAdapter,
+    serviceAdapter, // Assign the no-op adapter here
     endpoint: "/api/copilotkit",
   });
 
