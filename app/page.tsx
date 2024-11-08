@@ -1,15 +1,20 @@
 "use client";
 
 import { CopilotKit } from "@copilotkit/react-core";
-import { Mailer } from "./Mailer";
+import { Greeter } from "./Greeter";
 import "@copilotkit/react-ui/styles.css";
+import { ModelSelectorProvider } from "@/lib/model-selector-provider";
+import { ModelSelector } from "@/components/ModelSelector";
 
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-between">
-      <CopilotKit runtimeUrl="/api/copilotkit" agent="email_agent">
-        <Mailer />
-      </CopilotKit>
+      <ModelSelectorProvider>
+        <CopilotKit runtimeUrl="/api/copilotkit">
+          <Greeter />
+        </CopilotKit>
+        <ModelSelector />
+      </ModelSelectorProvider>
     </main>
   );
 }
