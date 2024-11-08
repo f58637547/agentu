@@ -4,15 +4,32 @@ import {
   copilotRuntimeNextJSAppRouterEndpoint,
 } from "@copilotkit/runtime";
 
-// Define the NoOpServiceAdapter class to act as a placeholder
-class NoOpServiceAdapter {
+// Define a RemoteServiceAdapter to forward requests to the backend
+class RemoteServiceAdapter {
+  private apiUrl: string;
+
+  constructor(apiUrl: string) {
+    this.apiUrl = apiUrl;
+  }
+
   async process(request: any): Promise<any> {
-    // Returns an empty response, satisfying TypeScript without actual processing
-    return { threadId: "noop", messages: [] };
+    const response = await fetch(this.apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to communicate with backend API: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 }
 
-// Instantiate the runtime with remote actions
+// Instantiate the runtime and service adapter
 const runtime = new CopilotRuntime({
   remoteActions: [
     {
@@ -21,13 +38,14 @@ const runtime = new CopilotRuntime({
   ],
 });
 
-// Use NoOpServiceAdapter as the service adapter
-const serviceAdapter = new NoOpServiceAdapter();
+const serviceAdapter = new RemoteServiceAdapter(
+  process.env.REMOTE_ACTION_URL || "https://agent.fcode.info/copilotkit"
+);
 
 export const POST = async (req: NextRequest) => {
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
     runtime,
-    serviceAdapter, // Assign the no-op adapter here
+    serviceAdapter,
     endpoint: "/api/copilotkit",
   });
 
