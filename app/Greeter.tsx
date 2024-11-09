@@ -1,15 +1,13 @@
 "use client";
 
-import { useModelSelectorContext } from "@/lib/model-selector-provider";
 import { useCoAgent } from "@copilotkit/react-core";
 import { CopilotPopup } from "@copilotkit/react-ui";
 
 export function Greeter() {
-  const { model } = useModelSelectorContext();
   useCoAgent({
     name: "greeting_agent",
     initialState: {
-      model,
+      model: "llama3-groq-8b-8192-tool-use-preview", // Hardcode the model here if required
     },
   });
 
